@@ -70,7 +70,7 @@ DAUTHZ = {
         },
     },
 }
-PERMISSION_FRAMEWORK_LOCATIONS.append('coral.permissions')
+PERMISSION_FRAMEWORK_LOCATIONS.append('manatee.permissions')
 DATATYPE_LOCATIONS.append('manatee.datatypes')
 FUNCTION_LOCATIONS.append('manatee.functions')
 ETL_MODULE_LOCATIONS.append('manatee.etl_modules')
