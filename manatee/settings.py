@@ -15,6 +15,24 @@ try:
 except ImportError:
     pass
 
+GROUPINGS = {
+    "groups": {
+        "allowed_relationships": {
+            "http://www.cidoc-crm.org/cidoc-crm/P107_has_current_or_former_member": (True, True),
+        },
+        "root_group": "d2368123-9628-49a2-b3dd-78ac6ee3e911",
+        "graph_id": "07883c9e-b25c-11e9-975a-a4d18cec433a"
+    },
+    "permissions": {
+        "allowed_relationships": {
+            "http://www.cidoc-crm.org/cidoc-crm/P107_has_current_or_former_member": (True, False),
+            "http://www.cidoc-crm.org/cidoc-crm/P104i_applies_to": (True, True),
+            "http://www.cidoc-crm.org/cidoc-crm/P10i_contains": (True, True),
+        },
+        "root_group": "74e496c7-ec7e-43b8-a7b3-05bacf496794",
+    }
+}
+
 APP_NAME = 'manatee'
 APP_VERSION = semantic_version.Version(major=0, minor=0, patch=0)
 APP_ROOT = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
@@ -28,10 +46,82 @@ WEBPACK_LOADER = {
     },
 }
 
+CASBIN_MODEL = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'permissions', 'casbin.conf')
+CASBIN_RELOAD_QUEUE = os.getenv("CASBIN_RELOAD_QUEUE", "reloadQueue")
+
+DAUTHZ = {
+    # DEFAULT Dauthz enforcer
+    "DEFAULT": {
+        # Casbin model setting.
+        "MODEL": {
+            # Available Settings: "file", "text"
+            "CONFIG_TYPE": "file",
+            "CONFIG_FILE_PATH": CASBIN_MODEL,
+            "CONFIG_TEXT": "",
+        },
+        # Casbin adapter .
+        "ADAPTER": {
+            "NAME": "casbin_adapter.adapter.Adapter",
+            # 'OPTION_1': '',
+        },
+        "LOG": {
+            # Changes whether Dauthz will log messages to the Logger.
+            "ENABLED": False,
+        },
+    },
+}
+PERMISSION_FRAMEWORK_LOCATIONS.append('coral.permissions')
 DATATYPE_LOCATIONS.append('manatee.datatypes')
 FUNCTION_LOCATIONS.append('manatee.functions')
 ETL_MODULE_LOCATIONS.append('manatee.etl_modules')
 SEARCH_COMPONENT_LOCATIONS.append('manatee.search_components')
+
+ANONYMOUS_SETS = []
+
+WELL_KNOWN_RESOURCE_MODELS = [
+    dict(
+        model_name="Person",
+        graphid="22477f01-1a44-11e9-b0a9-000d3ab1e588",
+        user_account={
+            "type": "user",
+            "lang": "en",
+            "nodegroupid": "b1f5c336-6a0e-11ee-b748-0242ac140009",
+            "nodeid": "b1f5c336-6a0e-11ee-b748-0242ac140009",
+        },
+    ),
+    {
+        "model_name": "Group",
+        "graphid": "07883c9e-b25c-11e9-975a-a4d18cec433a",
+        "permissions/object": {
+            "type": "@Set",
+            "lang": "en",
+            "nodegroupid": "ae2039a4-7070-11ee-bb7a-0242ac140008",
+            "nodeid": "448bcdb8-7071-11ee-8b8c-0242ac140008",
+        },
+        "permissions/action": {
+            "type": "concept-list",
+            "lang": "en",
+            "nodegroupid": "ae2039a4-7070-11ee-bb7a-0242ac140008",
+            "nodeid": "7cb692b2-7072-11ee-bb7a-0242ac140008",
+        }
+    },
+    dict(
+        model_name="Set",
+        graphid="b16832e8-dfc9-4fc8-9c07-0c0b980ed220",
+    ),
+    dict(
+        model_name="Logical Set",
+        graphid="5b8b4084-9687-11ee-8782-0242ac140006",
+    ),
+    dict(
+        model_name="Organization",
+        graphid="d4a88461-5463-11e9-90d9-000d3ab1e588",
+    ),
+    dict(
+        model_name="Archive Source",
+        graphid="b07cfa6f-894d-11ea-82aa-f875a44e0e11",
+    ),
+]
 
 LOCALE_PATHS.append(os.path.join(APP_ROOT, 'locale'))
 
@@ -190,6 +280,20 @@ FORCE_SCRIPT_NAME = None
 
 RESOURCE_IMPORT_LOG = os.path.join(APP_ROOT, 'logs', 'resource_import.log')
 DEFAULT_RESOURCE_IMPORT_USER = {'username': 'admin', 'userid': 1}
+
+USE_CASBIN = os.getenv("USE_CASBIN", "true").lower() == "true"
+if USE_CASBIN:
+    AUTHENTICATION_BACKENDS = (
+        *AUTHENTICATION_BACKENDS,
+        "dauthz.backends.CasbinBackend",
+    )
+    PERMISSION_FRAMEWORK = "casbin.CasbinPermissionFramework"
+    INSTALLED_APPS = (
+        *INSTALLED_APPS,
+        "casbin_adapter.apps.CasbinAdapterConfig"
+    )
+else:
+    PERMISSION_FRAMEWORK = "arches_allow_with_credentials.ArchesAllowWithCredentialsFramework"
 
 LOGGING = {
     'version': 1,
