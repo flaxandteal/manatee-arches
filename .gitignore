@@ -1,0 +1,15 @@
+*.pyc
+*.log
+manatee/logs
+manatee/export_deliverables
+manatee/cantaloupe/*
+manatee/staticfiles
+manatee/media/packages
+manatee/media/node_modules
+manatee/media/build/*
+manatee/uploadedfiles/*
+manatee/settings_local.py
+manatee/webpack/webpack-stats.json
+manatee/webpack/webpack-user-config.js
+.vscode/
+CACHE
