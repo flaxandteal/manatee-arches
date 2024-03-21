@@ -149,7 +149,9 @@ ELASTICSEARCH_HOSTS = [{"scheme": "https", "host": "localhost", "port": ELASTICS
 ROOT_URLCONF = 'manatee.urls'
 
 # Modify this line as needed for your project to connect to elasticsearch with a password that you generate
-ELASTICSEARCH_CONNECTION_OPTIONS = {"request_timeout": 30, "verify_certs": False, "basic_auth": ("elastic", "E1asticSearchforArche5")}
+ES_TIMEOUT = int(os.getenv("ES_TIMEOUT", "60"))
+ELASTICSEARCH_CONNECTION_OPTIONS = {"request_timeout": ES_TIMEOUT, "verify_certs": False, "basic_auth": ("elastic", "E1asticSearchforArche5")}
+ELASTICSEARCH_HOSTS = [{"scheme": "http", "host": os.environ.get("ESHOST", "localhost"), "port": int(os.environ.get("ESPORT", 9200))}]
 
 # If you need to connect to Elasticsearch via an API key instead of username/password, use the syntax below:
 # ELASTICSEARCH_CONNECTION_OPTIONS = {"timeout": 30, "verify_certs": False, "api_key": "<ENCODED_API_KEY>"}
@@ -227,9 +229,13 @@ INSTALLED_APPS = (
     "oauth2_provider",
     "django_celery_results",
     "compressor",
+    "dauthz.apps.DauthzConfig",
     # "silk",
     "manatee",
+    "arches_orm.arches_django.apps.ArchesORMConfig",
 )
+if DEBUG:
+    INSTALLED_APPS = (*INSTALLED_APPS, "debug_toolbar",)
 
 ARCHES_APPLICATIONS = ()
 
