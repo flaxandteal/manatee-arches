@@ -28,6 +28,7 @@ from arches.app.search.mappings import RESOURCES_INDEX
 from arches.app.utils.permission_backend import PermissionFramework, NotUserNorGroup as ArchesNotUserNorGroup
 from arches.app.permissions.arches_standard import get_nodegroups_by_perm_for_user_or_group, assign_perm
 
+from arches_orm import arches_django
 from arches_orm.models import Person, Organization, Set, LogicalSet, Group
 from arches_orm.wrapper import ResourceWrapper
 
